@@ -40,6 +40,10 @@ export const authService = {
     method: 'POST',
     body: jsonBody({ email, password }),
   }),
+  register: (payload) => request('/auth/register', {
+    method: 'POST',
+    body: jsonBody(payload),
+  }),
   me: () => request('/auth/me'),
 };
 

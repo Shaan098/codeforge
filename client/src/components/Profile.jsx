@@ -26,6 +26,7 @@ import ContributionGraph from './ContributionGraph.jsx';
 export default function Profile({ currentUser, submissions, onUpdateProfile, onRefreshUserData, setActiveTab }) {
   // Edit mode states
   const [isEditing, setIsEditing] = React.useState(false);
+  const [email, setEmail] = React.useState(currentUser.email || '');
   const [bio, setBio] = React.useState(currentUser.bio || '');
   const [college, setCollege] = React.useState(currentUser.college || '');
   const [github, setGithub] = React.useState(currentUser.github || '');
@@ -37,7 +38,7 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
     e.preventDefault();
     setLoading(true);
     try {
-      await onUpdateProfile({ bio, college, github, linkedin, location });
+      await onUpdateProfile({ email, bio, college, github, linkedin, location });
       setIsEditing(false);
     } catch (err) {
       console.error(err);
@@ -139,6 +140,18 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
                 Customize Profile
               </h3>
               
+              <div className="space-y-1">
+                <label className="font-mono text-[9px] text-slate-500 font-bold uppercase tracking-wider">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full rounded-lg border border-white/5 bg-slate-950 px-2.5 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-400/50"
+                />
+              </div>
+
               <div className="space-y-1">
                 <label className="font-mono text-[9px] text-slate-500 font-bold uppercase tracking-wider">Bio Statement</label>
                 <textarea

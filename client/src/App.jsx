@@ -14,6 +14,7 @@ import { useSubmissions } from './hooks/useSubmissions.js';
 import { authService, profileService, submissionService } from './services/index.js';
 import toast from './utils/toast.js';
 import ErrorBoundary from './utils/ErrorBoundary.jsx';
+import AuthModal from './components/AuthModal.jsx';
 
 const fallbackUser = {
   id: 'u1',
@@ -31,7 +32,8 @@ const fallbackUser = {
 
 export default function App() {
   const [activeTab, setActiveTab] = React.useState('landing');
-  const [currentUser, setCurrentUser] = React.useState(fallbackUser);
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const [authModalState, setAuthModalState] = React.useState('hidden'); // 'hidden' | 'login' | 'register'
   const [selectedProblem, setSelectedProblem] = React.useState(null);
   const { problems, isLoading, addProblem, removeProblem, refetch } = useProblems();
   const { submissions, fetchSubmissions, setSubmissions } = useSubmissions();
@@ -48,17 +50,14 @@ export default function App() {
 
   React.useEffect(() => {
     async function bootstrapSession() {
-      try {
-        if (!localStorage.getItem('codeforge_token')) {
-          const login = await authService.login('shaansaurav633@gmail.com', 'codeforge123');
-          localStorage.setItem('codeforge_token', login.data.token);
-          setCurrentUser(login.data.user);
-        } else {
+      if (localStorage.getItem('codeforge_token')) {
+        try {
           const me = await authService.me();
           setCurrentUser(me.data.user);
+        } catch {
+          localStorage.removeItem('codeforge_token');
+          setCurrentUser(null);
         }
-      } catch {
-        setCurrentUser(fallbackUser);
       }
     }
 
@@ -66,8 +65,10 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    fetchSubmissions(currentUser.id);
-  }, [currentUser.id, fetchSubmissions]);
+    if (currentUser) {
+      fetchSubmissions(currentUser.id);
+    }
+  }, [currentUser?.id, fetchSubmissions]);
 
   const handleSelectProblem = async (problemOrId) => {
     const id = typeof problemOrId === 'string' ? problemOrId : problemOrId?.id;
@@ -133,14 +134,18 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('codeforge_token');
-    setCurrentUser(fallbackUser);
+    setCurrentUser(null);
     setSubmissions([]);
     setActiveTab('landing');
   };
 
   const renderContent = () => {
-    if (activeTab === 'landing') {
-      return <LandingPage onGetStarted={() => setActiveTab('dashboard')} />;
+    if (activeTab === 'landing' || !currentUser) {
+      return (
+        <LandingPage 
+          onGetStarted={() => currentUser ? setActiveTab('dashboard') : setAuthModalState('register')} 
+        />
+      );
     }
 
     if (activeTab === 'problem-details' && selectedProblem) {
@@ -202,13 +207,35 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-[#09090b] text-[#f4f4f5]">
-        {activeTab !== 'landing' && (
+        <AuthModal
+          isOpen={authModalState !== 'hidden'}
+          mode={authModalState}
+          setMode={setAuthModalState}
+          onClose={() => setAuthModalState('hidden')}
+          onSuccess={(data) => {
+            localStorage.setItem('codeforge_token', data.token);
+            setCurrentUser(data.user);
+            setAuthModalState('hidden');
+            setActiveTab('dashboard');
+          }}
+        />
+        
+        {currentUser && activeTab !== 'landing' && (
           <Navbar
             currentUser={currentUser}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             onLogoutClick={handleLogout}
           />
+        )}
+        {(!currentUser && activeTab !== 'landing') && (
+          <div className="border-b border-white/5 bg-[#0c0c0e] py-3 px-6 flex justify-between items-center">
+            <div className="font-sans font-black text-xl text-white tracking-tight">CodeForge</div>
+            <div className="flex space-x-3">
+              <button onClick={() => setAuthModalState('login')} className="text-sm font-semibold text-slate-300 hover:text-white cursor-pointer">Login</button>
+              <button onClick={() => setAuthModalState('register')} className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-violet-500 cursor-pointer">Sign Up</button>
+            </div>
+          </div>
         )}
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           {renderContent()}

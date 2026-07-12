@@ -382,8 +382,15 @@ export function getProfile(req, res) {
 }
 
 export function updateProfile(req, res) {
-  const user = getDb().users.find((item) => item.id === req.user.id);
+  const data = getDb();
+  const user = data.users.find((item) => item.id === req.user.id);
   if (!user) return res.status(404).json({ error: 'User not found.' });
+
+  if (req.body.email && req.body.email !== user.email) {
+    const exists = data.users.find((item) => item.email === req.body.email);
+    if (exists) return res.status(409).json({ error: 'Email is already in use.' });
+    user.email = req.body.email;
+  }
 
   for (const key of ['bio', 'college', 'github', 'linkedin', 'location']) {
     if (req.body[key] !== undefined) user[key] = req.body[key];
