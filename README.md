@@ -35,26 +35,46 @@ codeforge/
 
 ## Run Locally
 
-**Prerequisites:** Node.js 18+
+**Prerequisites:** Node.js 18+ and MongoDB
 
-1. Install dependencies:
-   ```
+1. **Install dependencies:**
+   ```bash
    npm install
    ```
 
-2. Set the `MISTRAL_API_KEY` in [.env](.env) to your Mistral API key
-
-3. Start the dev server:
+2. **Environment Setup:**
+   Copy `.env.example` to `.env` (or create a `.env` file) and fill in the values:
+   ```env
+   NODE_ENV=development
+   PORT=3000
+   MONGO_URI=mongodb://127.0.0.1:27017/codeforge
+   JWT_SECRET=your_super_secret_key
+   MISTRAL_API_KEY=your_mistral_api_key
    ```
+
+3. **Start the database:**
+   Ensure your local MongoDB instance is running.
+
+4. **Start the Backend Server:**
+   In the root directory, run:
+   ```bash
    npm run dev
    ```
-   The API runs on `http://localhost:3000` and the Vite client on `http://localhost:5173`.
+   *The backend API will run on `http://localhost:3000`*
+
+5. **Start the Frontend Server:**
+   Open a new terminal window in the root directory and run:
+   ```bash
+   npm run dev:client
+   ```
+   *The React client will run on `http://localhost:5173`*
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start server in dev mode (tsx hot reload) |
+| `npm run dev` | Start backend server with Node |
+| `npm run dev:client` | Start frontend server (Vite) |
 | `npm run build` | Build frontend (Vite) + bundle server (esbuild) |
 | `npm start` | Run production build (`dist/server.cjs`) |
 
