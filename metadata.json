@@ -1,0 +1,6 @@
+{
+  "name": "CodeForge",
+  "description": "Enterprise-grade AI-powered Online Judge and code compilation platform with LeetCode-style layouts, real-time feedback, streaks, leaderboards, and interactive AI debugging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_AI_API"]
+}
