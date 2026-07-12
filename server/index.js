@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import './bootstrap.js';
+
 import app from './app.js';
 import config from './config/env.js';
 import { initStore } from './services/store.js';

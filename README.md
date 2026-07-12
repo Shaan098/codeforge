@@ -55,25 +55,21 @@ codeforge/
 3. **Start the database:**
    Ensure your local MongoDB instance is running.
 
-4. **Start the Backend Server:**
+4. **Start the Application:**
    In the root directory, run:
    ```bash
    npm run dev
    ```
-   *The backend API will run on `http://localhost:3000`*
-
-5. **Start the Frontend Server:**
-   Open a new terminal window in the root directory and run:
-   ```bash
-   npm run dev:client
-   ```
-   *The React client will run on `http://localhost:5173`*
+   *This command uses `concurrently` to automatically start BOTH:*
+   - *Backend API on `http://localhost:3000`*
+   - *Frontend React app on `http://localhost:5173`*
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start backend server with Node |
+| `npm run dev` | Start both frontend and backend servers simultaneously |
+| `npm run dev:server` | Start backend server with Node |
 | `npm run dev:client` | Start frontend server (Vite) |
 | `npm run build` | Build frontend (Vite) + bundle server (esbuild) |
 | `npm start` | Run production build (`dist/server.cjs`) |

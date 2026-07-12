@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server/index.js",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node server/index.js",
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build && esbuild server/index.js --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
@@ -45,6 +46,7 @@
     "@types/node": "^22.14.0",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^10.0.3",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
