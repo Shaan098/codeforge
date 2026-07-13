@@ -32,6 +32,7 @@ import {
   Check
 } from 'lucide-react';
 import canvasConfetti from 'canvas-confetti';
+import { request } from '../services/index.js';
 
 export default function ProblemDetails({
   problem,
@@ -106,9 +107,8 @@ export default function ProblemDetails({
 
   // Load discussions
   React.useEffect(() => {
-    fetch(`/api/discussions?problemId=${problem.id}`)
-      .then(res => res.json())
-      .then(data => setDiscussions(data.discussions || []))
+    request(`/discussions?problemId=${problem.id}`)
+      .then(res => setDiscussions(res.data.discussions || []))
       .catch(err => console.error(err));
   }, [problem.id]);
 
@@ -228,9 +228,8 @@ export default function ProblemDetails({
     if (!newDiscTitle || !newDiscContent) return;
 
     try {
-      const res = await fetch('/api/discussions', {
+      const { data } = await request('/discussions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           problemId: problem.id,
           userId: currentUser.id,
@@ -238,7 +237,6 @@ export default function ProblemDetails({
           content: newDiscContent
         })
       });
-      const data = await res.json();
       setDiscussions([data.discussion, ...discussions]);
       setNewDiscTitle('');
       setNewDiscContent('');
@@ -250,12 +248,10 @@ export default function ProblemDetails({
 
   const handleVoteThread = async (discId) => {
     try {
-      const res = await fetch(`/api/discussions/${discId}/vote`, {
+      const { data } = await request(`/discussions/${discId}/vote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: currentUser.id })
       });
-      const data = await res.json();
       setDiscussions(discussions.map(d => d.id === discId ? { ...d, votes: data.votes, upvotedBy: data.upvotedBy } : d));
       if (selectedThread?.id === discId) {
         setSelectedThread({ ...selectedThread, votes: data.votes, upvotedBy: data.upvotedBy });
@@ -270,15 +266,13 @@ export default function ProblemDetails({
     if (!selectedThread || !replyText) return;
 
     try {
-      const res = await fetch(`/api/discussions/${selectedThread.id}/replies`, {
+      const { data } = await request(`/discussions/${selectedThread.id}/replies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: currentUser.id,
           content: replyText
         })
       });
-      const data = await res.json();
       const updatedThread = { ...selectedThread, replies: data.replies };
       setSelectedThread(updatedThread);
       setDiscussions(discussions.map(d => d.id === selectedThread.id ? updatedThread : d));

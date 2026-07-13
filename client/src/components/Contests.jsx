@@ -16,6 +16,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import { request } from '../services/index.js';
 
 export default function Contests({ onSelectProblem }) {
   const [contests, setContests] = React.useState([]);
@@ -28,8 +29,8 @@ export default function Contests({ onSelectProblem }) {
   React.useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch('/api/contests').then(res => res.json()),
-      fetch('/api/problems').then(res => res.json())
+      request('/contests').then(res => res.data),
+      request('/problems').then(res => res.data)
     ])
       .then(([contestsData, problemsData]) => {
         setContests(contestsData.contests || []);

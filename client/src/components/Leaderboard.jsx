@@ -13,9 +13,9 @@ import {
   TrendingUp, 
   Users, 
   School, 
-  Clock,
   Sparkles
 } from 'lucide-react';
+import { request } from '../services/index.js';
 
 export default function Leaderboard({ currentUser }) {
   const [boardType, setBoardType] = React.useState('global');
@@ -25,8 +25,8 @@ export default function Leaderboard({ currentUser }) {
 
   React.useEffect(() => {
     setLoading(true);
-    fetch('/api/leaderboard')
-      .then(res => res.json())
+    request('/leaderboard')
+      .then(res => res.data)
       .then(data => {
         setUsers(data.leaderboard || []);
         setLoading(false);

@@ -20,6 +20,7 @@ import {
   Award
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { submissionService } from '../services/index.js';
 
 export default function ContributionGraph({ 
   currentUser, 
@@ -134,12 +135,7 @@ export default function ContributionGraph({
     setSeedSuccess(false);
 
     try {
-      const res = await fetch('/api/submissions/seed-activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id }),
-      });
-      const data = await res.json();
+      const { data } = await submissionService.seedActivity();
       if (data.success || data.count) {
         setSeedSuccess(true);
         if (onRefreshUserData) {

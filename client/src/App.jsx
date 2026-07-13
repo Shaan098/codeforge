@@ -11,7 +11,7 @@ import Profile from './components/Profile.jsx';
 import SubmissionsHistory from './components/SubmissionsHistory.jsx';
 import { useProblems } from './hooks/useProblems.js';
 import { useSubmissions } from './hooks/useSubmissions.js';
-import { authService, profileService, submissionService } from './services/index.js';
+import { authService, problemService, profileService, submissionService } from './services/index.js';
 import toast from './utils/toast.js';
 import ErrorBoundary from './utils/ErrorBoundary.jsx';
 import AuthModal from './components/AuthModal.jsx';
@@ -86,8 +86,7 @@ export default function App() {
     }
 
     try {
-      const response = await fetch(`/api/problems/${id}`);
-      const data = await response.json();
+      const { data } = await problemService.getById(id);
       setSelectedProblem(data.problem);
       setActiveTab('problem-details');
     } catch {

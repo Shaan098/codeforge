@@ -6,7 +6,7 @@ function getToken() {
   return localStorage.getItem('codeforge_token');
 }
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
