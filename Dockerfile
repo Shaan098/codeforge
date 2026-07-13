@@ -2,8 +2,7 @@
 # CodeForge Enterprise — Multi-stage Dockerfile
 # ============================================================
 # Stage 1: Build React frontend
-# Stage 2: Build Express server (TypeScript → CJS)
-# Stage 3: Production image (serves built frontend + API)
+# Stage 2: Production image (serves built frontend + API)
 # ============================================================
 
 # ── Stage 1: Frontend Build ───────────────────────────────────────────────────
@@ -17,28 +16,7 @@ RUN npm ci --prefer-offline
 COPY client/ ./
 RUN npm run build
 
-# ── Stage 2: Server Build ─────────────────────────────────────────────────────
-FROM node:22-alpine AS server-builder
-
-WORKDIR /app
-
-# Install root deps (includes esbuild, tsx, typescript)
-COPY package*.json ./
-RUN npm ci --prefer-offline
-
-# Copy server source
-COPY server/ ./server/
-
-# Bundle server/index.ts → dist/server.cjs
-RUN npx esbuild server/index.ts \
-      --bundle \
-      --platform=node \
-      --format=cjs \
-      --packages=external \
-      --sourcemap \
-      --outfile=dist/server.cjs
-
-# ── Stage 3: Production Runtime ───────────────────────────────────────────────
+# ── Stage 2: Production Runtime ───────────────────────────────────────────────
 FROM node:22-alpine AS production
 
 # System deps for code sandbox execution
@@ -50,8 +28,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev --prefer-offline
 
-# Copy compiled server bundle
-COPY --from=server-builder /app/dist ./dist
+# Copy the Express server. It runs directly as native ES modules.
+COPY server/ ./server/
 
 # Copy built frontend
 COPY --from=frontend-builder /app/client/build ./client/build
@@ -74,4 +52,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 ENV NODE_ENV=production
 
-CMD ["node", "dist/server.cjs"]
+CMD ["node", "server/index.js"]

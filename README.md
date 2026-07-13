@@ -79,3 +79,24 @@ codeforge/
 ```bash
 docker-compose up --build
 ```
+
+## Deploy: Vercel + Render
+
+Deploy the React client to Vercel and the Express API to Render. Create a MongoDB Atlas database first, then deploy the API from this repository to Render. The included `render.yaml` provides the build and start commands.
+
+Set these Render environment variables:
+
+```env
+MONGODB_URI=<your MongoDB Atlas connection string>
+CLIENT_URL=https://<your-vercel-project>.vercel.app
+DEFAULT_USER_PASSWORD=<strong default password>
+MISTRAL_API_KEY=<optional; enables AI Debugger>
+```
+
+Render generates `JWT_SECRET` through `render.yaml`. Once the API is live, deploy `client/` to Vercel with **Root Directory** set to `client`. Add this Vercel environment variable before deploying:
+
+```env
+VITE_API_URL=https://<your-render-service>.onrender.com
+```
+
+Redeploy the Render service after setting the exact Vercel URL in `CLIENT_URL`. The frontend sends requests to `VITE_API_URL/api`, while local development continues to use Vite's `/api` proxy.

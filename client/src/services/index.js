@@ -1,4 +1,6 @@
-const API_BASE = '/api';
+// Vercel reads VITE_API_URL at build time; local Vite development uses /api.
+const apiOrigin = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+const API_BASE = apiOrigin ? `${apiOrigin}/api` : '/api';
 
 function getToken() {
   return localStorage.getItem('codeforge_token');
