@@ -392,11 +392,26 @@ export function updateProfile(req, res) {
     user.email = req.body.email;
   }
 
+  if (req.body.username && req.body.username !== user.username) {
+    const exists = data.users.find((item) => item.username === req.body.username);
+    if (exists) return res.status(409).json({ error: 'Username is already taken.' });
+    
+    // Update username across relational data
+    data.submissions.forEach((s) => { if (s.userId === user.id) s.username = req.body.username; });
+    data.discussions.forEach((d) => {
+      if (d.userId === user.id) d.username = req.body.username;
+      d.replies.forEach((r) => { if (r.userId === user.id) r.username = req.body.username; });
+    });
+    
+    user.username = req.body.username;
+  }
+
   for (const key of ['bio', 'college', 'github', 'linkedin', 'location']) {
     if (req.body[key] !== undefined) user[key] = req.body[key];
   }
 
-  res.json({ user: toSafeUser(user) });
+  const token = signToken({ id: user.id, username: user.username });
+  res.json({ token, user: toSafeUser(user) });
 }
 
 export function toggleBookmark(req, res) {

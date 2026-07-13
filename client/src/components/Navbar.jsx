@@ -19,7 +19,7 @@ import {
   History
 } from 'lucide-react';
 
-export default function Navbar({ currentUser, activeTab, setActiveTab, onLogoutClick }) {
+export default function Navbar({ currentUser, activeTab, setActiveTab, onLogoutClick, onEditProfileClick }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const navItems = [
@@ -133,6 +133,12 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogoutC
                 My Profile
               </button>
               <button 
+                onClick={onEditProfileClick}
+                className="w-full text-left px-3 py-2 text-xs text-[#a1a1aa] hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+              >
+                Edit Profile
+              </button>
+              <button 
                 onClick={onLogoutClick}
                 className="w-full text-left px-3 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
               >
@@ -192,12 +198,23 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogoutC
               <span className="text-xs font-bold text-[#e4e4e7]">{currentUser.username}</span>
               <span className="text-[10px] text-[#71717a]">{currentUser.email}</span>
             </div>
-            <button 
-              onClick={onLogoutClick}
-              className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 cursor-pointer"
-            >
-              Sign Out
-            </button>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => {
+                  onEditProfileClick();
+                  setMobileOpen(false);
+                }}
+                className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 cursor-pointer"
+              >
+                Edit
+              </button>
+              <button 
+                onClick={onLogoutClick}
+                className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       )}

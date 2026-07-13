@@ -34,6 +34,7 @@ export default function App() {
   const [activeTab, setActiveTab] = React.useState('landing');
   const [currentUser, setCurrentUser] = React.useState(null);
   const [authModalState, setAuthModalState] = React.useState('hidden'); // 'hidden' | 'login' | 'register'
+  const [profileEditMode, setProfileEditMode] = React.useState(false);
   const [selectedProblem, setSelectedProblem] = React.useState(null);
   const { problems, isLoading, addProblem, removeProblem, refetch } = useProblems();
   const { submissions, fetchSubmissions, setSubmissions } = useSubmissions();
@@ -44,9 +45,11 @@ export default function App() {
       setCurrentUser(me.data.user);
       await fetchSubmissions(me.data.user.id);
     } catch {
-      await fetchSubmissions(currentUser.id);
+      if (currentUser?.id) {
+        await fetchSubmissions(currentUser.id);
+      }
     }
-  }, [currentUser.id, fetchSubmissions]);
+  }, [currentUser?.id, fetchSubmissions]);
 
   React.useEffect(() => {
     async function bootstrapSession() {
@@ -128,6 +131,9 @@ export default function App() {
 
   const handleUpdateProfile = async (payload) => {
     const res = await profileService.update(payload);
+    if (res.data.token) {
+      localStorage.setItem('codeforge_token', res.data.token);
+    }
     setCurrentUser(res.data.user);
     toast.success('Profile updated.');
   };
@@ -196,6 +202,8 @@ export default function App() {
           onUpdateProfile={handleUpdateProfile}
           onRefreshUserData={refreshUserData}
           setActiveTab={setActiveTab}
+          initialEditMode={profileEditMode}
+          setProfileEditMode={setProfileEditMode}
         />
       ),
       admin: <AdminPanel problems={problems} onAddProblem={async (problem) => { await addProblem(problem); await refetch(); }} onDeleteProblem={removeProblem} />,
@@ -206,7 +214,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#09090b] text-[#f4f4f5]">
+      <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] overflow-x-hidden">
         <AuthModal
           isOpen={authModalState !== 'hidden'}
           mode={authModalState}
@@ -226,6 +234,10 @@ export default function App() {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             onLogoutClick={handleLogout}
+            onEditProfileClick={() => {
+              setProfileEditMode(true);
+              setActiveTab('profile');
+            }}
           />
         )}
         {(!currentUser && activeTab !== 'landing') && (
@@ -238,7 +250,9 @@ export default function App() {
           </div>
         )}
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          {renderContent()}
+          <div key={activeTab} className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
+            {renderContent()}
+          </div>
         </main>
       </div>
     </ErrorBoundary>

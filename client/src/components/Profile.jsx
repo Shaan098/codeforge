@@ -19,13 +19,15 @@ import {
   Edit2,
   BookOpen,
   Lock,
-  CheckCircle2
+  CheckCircle2,
+  History
 } from 'lucide-react';
 import ContributionGraph from './ContributionGraph.jsx';
 
-export default function Profile({ currentUser, submissions, onUpdateProfile, onRefreshUserData, setActiveTab }) {
+export default function Profile({ currentUser, submissions, onUpdateProfile, onRefreshUserData, setActiveTab, initialEditMode, setProfileEditMode }) {
   // Edit mode states
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(initialEditMode || false);
+  const [username, setUsername] = React.useState(currentUser.username || '');
   const [email, setEmail] = React.useState(currentUser.email || '');
   const [bio, setBio] = React.useState(currentUser.bio || '');
   const [college, setCollege] = React.useState(currentUser.college || '');
@@ -38,7 +40,7 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
     e.preventDefault();
     setLoading(true);
     try {
-      await onUpdateProfile({ email, bio, college, github, linkedin, location });
+      await onUpdateProfile({ username, email, bio, college, github, linkedin, location });
       setIsEditing(false);
     } catch (err) {
       console.error(err);
@@ -46,6 +48,14 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    if (initialEditMode) {
+      setIsEditing(true);
+      // Consume the prop so it doesn't get stuck
+      if (setProfileEditMode) setProfileEditMode(false);
+    }
+  }, [initialEditMode, setProfileEditMode]);
 
   // Badges lists to guarantee all gamification targets look fantastic
   const badgeConfig = [
@@ -139,6 +149,18 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
               <h3 className="font-sans font-bold text-xs text-white uppercase tracking-wider border-b border-white/5 pb-2">
                 Customize Profile
               </h3>
+
+              <div className="space-y-1">
+                <label className="font-mono text-[9px] text-slate-500 font-bold uppercase tracking-wider">Username</label>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="code_ninja"
+                  className="w-full rounded-lg border border-white/5 bg-slate-950 px-2.5 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-400/50"
+                />
+              </div>
               
               <div className="space-y-1">
                 <label className="font-mono text-[9px] text-slate-500 font-bold uppercase tracking-wider">Email Address</label>
@@ -370,8 +392,16 @@ export default function Profile({ currentUser, submissions, onUpdateProfile, onR
                 )}
               </div>
             ) : (
-              <div className="text-center text-slate-500 text-xs py-6">
-                No recent submission history found. Solved algorithmic tasks will register here.
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-10 rounded-xl border border-dashed border-[#27272a] bg-zinc-950/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800/50 border border-white/5 text-slate-500">
+                  <History className="h-5 w-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-sans font-bold text-xs text-white">No Recent Submissions</h4>
+                  <p className="text-slate-500 text-[10px] max-w-[200px] leading-relaxed">
+                    Algorithm runs and completed challenges will appear here.
+                  </p>
+                </div>
               </div>
             )}
           </div>

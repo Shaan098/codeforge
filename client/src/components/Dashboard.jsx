@@ -642,8 +642,22 @@ export default function Dashboard({
         </div>
 
         {submissions.length === 0 ? (
-          <div className="py-8 text-center text-slate-500 text-xs">
-            No compilation runs logged in this sandbox. Solve your first problem to populate logs!
+          <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 rounded-xl border border-dashed border-[#27272a] bg-zinc-950/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-500/5 border border-violet-500/10 text-violet-400">
+              <Code2 className="h-6 w-6 opacity-80" />
+            </div>
+            <div className="space-y-1 max-w-xs">
+              <h4 className="font-sans font-bold text-sm text-white">No Activity Yet</h4>
+              <p className="text-slate-500 text-xs leading-relaxed">
+                No compilation runs logged in this sandbox. Pick a daily challenge above to write your first algorithm.
+              </p>
+            </div>
+            <button 
+              onClick={() => setActiveTab('problems')}
+              className="mt-2 rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              Browse Problems
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
