@@ -47,7 +47,8 @@ codeforge/
    ```env
    NODE_ENV=development
    PORT=3000
-   MONGO_URI=mongodb://127.0.0.1:27017/codeforge
+   CLIENT_URL=http://localhost:5173
+   MONGODB_URI=mongodb://127.0.0.1:27017/codeforge
    JWT_SECRET=your_super_secret_key
    MISTRAL_API_KEY=your_mistral_api_key
    ```

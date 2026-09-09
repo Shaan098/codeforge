@@ -32,7 +32,7 @@ function getMistralClient() {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MISTRAL_MODEL = 'mistral-large-latest';
+const MISTRAL_MODEL = 'mistral-small-latest';
 
 // ─── System Instruction ───────────────────────────────────────────────────────
 
