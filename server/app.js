@@ -11,6 +11,9 @@ import apiRoutes from './routes/index.js';
 
 const app = express();
 
+// Render and other managed hosts terminate TLS at a reverse proxy.
+app.set('trust proxy', 1);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(morgan(config.isDev ? 'dev' : 'combined'));
