@@ -213,7 +213,7 @@ export default function ProblemDetails({
     const status = lastRunResult?.status || 'No Execution Completed';
 
     try {
-      const analysis = await onAIDebug(code, selectedLang, expected, actual, status, 'mistral');
+      const analysis = await onAIDebug(code, selectedLang, expected, actual, status, 'gemini');
       setAiAnalysisResult(analysis);
     } catch (err) {
       setAiAnalysisResult(`### ❌ Connection Error\nCould not compile analysis feedback: ${err.message}`);

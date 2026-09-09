@@ -1,38 +1,28 @@
-/**
- * server/utils/gemini.js → migrated to Mistral AI
- * AI debugging session using Mistral AI.
- *
- * Updated:
- * - Removed Google Gemini and Anthropic Claude integrations
- * - Using Mistral AI API exclusively
- * - Simplified to single AI provider
- */
+/** AI debugging session using Google Gemini. */
 
-import { Mistral } from '@mistralai/mistralai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Read API key at function call time (not at import time) to allow dotenv to run first
-const getMistralKey = () => process.env.MISTRAL_API_KEY || process.env.MINSTRAL_API_KEY || '';
+const getGeminiKey = () => process.env.GEMINI_API_KEY || '';
 
 // ─── Lazy Singleton ───────────────────────────────────────────────────────────
 
-let _mistralClient = null;
+let _geminiClient = null;
 
-function getMistralClient() {
-  if (!_mistralClient) {
-    const apiKey = getMistralKey();
+function getGeminiClient() {
+  if (!_geminiClient) {
+    const apiKey = getGeminiKey();
     if (!apiKey) {
-      console.warn('MISTRAL_API_KEY is not set. AI Debugger will use offline fallback.');
+      console.warn('GEMINI_API_KEY is not set. AI Debugger will use offline fallback.');
     }
-    _mistralClient = new Mistral({
-      apiKey: apiKey || 'placeholder',
-    });
+    _geminiClient = new GoogleGenerativeAI(apiKey || 'placeholder');
   }
-  return _mistralClient;
+  return _geminiClient;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MISTRAL_MODEL = 'mistral-small-latest';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 // ─── System Instruction ───────────────────────────────────────────────────────
 
@@ -129,37 +119,51 @@ export async function generateAIDebugSession(input) {
   const prompt = buildPrompt(input);
 
   // Check API key availability
-  if (!getMistralKey()) {
+  if (!getGeminiKey()) {
     return offlineFallback(
       problem,
       language,
       executionStatus,
-      '**MISTRAL_API_KEY** is not set. Add it to your `.env` file.'
+      '**GEMINI_API_KEY** is not set. Add it to your `.env` file.'
     );
   }
 
-  try {
-    const client = getMistralClient();
-    
-    const response = await client.chat.complete({
-      model: MISTRAL_MODEL,
-      messages: [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.7,
-      maxTokens: 2048,
-    });
+  const MAX_RETRIES = 3;
 
-    const content = response.choices?.[0]?.message?.content;
-    return content || 'ForgeAI returned an empty response. Please try again.';
-  } catch (err) {
-    console.error('Mistral API error:', err.message);
-    return offlineFallback(
-      problem,
-      language,
-      executionStatus,
-      `An error occurred: ${err.message}`
-    );
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = getGeminiClient().getGenerativeModel({
+        model: GEMINI_MODEL,
+        systemInstruction,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+        },
+      });
+
+      const response = await model.generateContent(prompt);
+      const content = response.response?.text();
+      return content || 'ForgeAI returned an empty response. Please try again.';
+    } catch (err) {
+      const isRateLimit =
+        err.message?.includes('429') ||
+        err.message?.includes('rate_limit') ||
+        err.message?.includes('Rate limit');
+
+      if (isRateLimit && attempt < MAX_RETRIES) {
+        const delay = attempt * 3000; // 3s → 6s → 9s
+        console.warn(`[ForgeAI] Rate limited. Retrying in ${delay / 1000}s (attempt ${attempt}/${MAX_RETRIES})...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error('Gemini API error:', err.message);
+      return offlineFallback(
+        problem,
+        language,
+        executionStatus,
+        `An error occurred: ${err.message}`
+      );
+    }
   }
 }

@@ -27,7 +27,7 @@ const config = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   defaultUserPassword: process.env.DEFAULT_USER_PASSWORD || 'codeforge123',
-  mistralApiKey: process.env.MISTRAL_API_KEY || process.env.MINSTRAL_API_KEY || '',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
   isDev: process.env.NODE_ENV !== 'production',
   isProd: process.env.NODE_ENV === 'production',
 };

@@ -11,7 +11,7 @@ async function start() {
     console.log(`CodeForge server running on http://localhost:${config.port}`);
     console.log(`Environment: ${config.nodeEnv}`);
     console.log(`Client URL: ${config.clientUrl}`);
-    console.log(`Mistral AI: ${config.mistralApiKey ? 'key loaded' : 'key missing'}`);
+    console.log(`Gemini AI: ${config.geminiApiKey ? 'key loaded' : 'key missing'}`);
   });
 }
 

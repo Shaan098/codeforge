@@ -241,7 +241,7 @@ export async function aiDebug(req, res, next) {
       expectedOutput,
       actualOutput,
       executionStatus,
-      provider: 'mistral',
+      provider: 'gemini',
     });
 
     res.json({ analysis });
