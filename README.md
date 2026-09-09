@@ -50,7 +50,7 @@ codeforge/
    CLIENT_URL=http://localhost:5173
    MONGODB_URI=mongodb://127.0.0.1:27017/codeforge
    JWT_SECRET=your_super_secret_key
-   MISTRAL_API_KEY=your_mistral_api_key
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
 3. **Start the database:**
@@ -91,7 +91,7 @@ Set these Render environment variables:
 MONGODB_URI=<your MongoDB Atlas connection string>
 CLIENT_URL=https://<your-vercel-project>.vercel.app
 DEFAULT_USER_PASSWORD=<strong default password>
-MISTRAL_API_KEY=<optional; enables AI Debugger>
+GEMINI_API_KEY=<optional; enables AI Debugger>
 ```
 
 Render generates `JWT_SECRET` through `render.yaml`. Once the API is live, deploy `client/` to Vercel with **Root Directory** set to `client`. Add this Vercel environment variable before deploying:
